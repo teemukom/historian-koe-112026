@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Koneiden aika alkaa – harjoituskoe</title>
+<style>
+:root{
+  --red:#d62839; --red-dark:#a81d2c; --pink:#f6b5a6; --pink-soft:#fde3dc;
+  --lime:#b9d334; --lime-soft:#e6f0a8; --blue:#8cc6e6; --blue-dark:#2f7ea8; --blue-soft:#cfe8f5;
+  --ink:#1f1f26; --paper:#fffdf9; --ok:#2e9e4f; --bad:#d62839;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#efe9e2;color:var(--ink);font-family:Cambria,Georgia,"Times New Roman",serif;line-height:1.45}
+.page{max-width:860px;margin:0 auto;background:var(--paper);min-height:100vh;position:relative;overflow:hidden;box-shadow:0 0 30px rgba(0,0,0,.12);padding:0 0 40px}
+.wash{position:absolute;top:-40px;left:-60px;width:420px;height:260px;pointer-events:none;
+  background:
+   radial-gradient(ellipse at 40% 45%,rgba(240,120,110,.55),rgba(246,181,166,.45) 45%,rgba(246,181,166,0) 72%),
+   radial-gradient(ellipse at 70% 70%,rgba(246,181,166,.5),rgba(246,181,166,0) 60%);
+  filter:blur(2px);z-index:0}
+header.top,.content{position:relative;z-index:1}
+header.top{padding:34px 24px 10px}
+.eyebrow{font-family:"Segoe Print","Bradley Hand","Comic Sans MS",cursive;color:var(--blue-dark);font-size:1.05rem;margin-bottom:2px}
+h1{margin:0;color:var(--red);font-size:2.1rem;line-height:1.1}
+.lead{margin:10px 0 0;max-width:620px}
+.content{padding:8px 24px}
+.cards{display:grid;gap:14px;margin-top:16px}
+.card{display:flex;align-items:center;gap:16px;text-align:left;width:100%;background:#fff;border:2px solid #eadfd6;border-radius:14px;padding:12px 16px;cursor:pointer;font:inherit;color:inherit;transition:transform .12s,box-shadow .12s,border-color .12s}
+.card:hover,.card:focus-visible{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.12);border-color:var(--red);outline:none}
+.card .ct{font-size:1.25rem;font-weight:700;color:var(--red-dark);line-height:1.15}
+.card .cs{font-size:.9rem;color:#555;margin-top:3px}
+.card .ico{margin-left:auto;flex:0 0 auto;opacity:.95}
+.splat{flex:0 0 auto;filter:drop-shadow(0 2px 2px rgba(0,0,0,.18))}
+.zbadge{width:64px;height:64px;flex:0 0 auto}
+.pagehead{display:flex;align-items:center;gap:14px;margin:6px 0 6px}
+.pagehead h2{margin:0;color:var(--red);font-size:1.7rem;line-height:1.1}
+.back{font:inherit;background:none;border:none;color:var(--blue-dark);cursor:pointer;padding:6px 0;font-size:1rem;text-decoration:underline}
+.sub{font-family:"Segoe Print","Bradley Hand","Comic Sans MS",cursive;color:var(--blue-dark);font-size:1.15rem;margin:18px 0 8px}
+/* Muistilista */
+.memo{position:relative;background:var(--lime);border-radius:4px;padding:34px 22px 18px;margin:14px 0 8px;box-shadow:2px 3px 0 rgba(0,0,0,.08)}
+.memo::before{content:"";position:absolute;left:14px;right:14px;top:8px;height:14px;
+  background:repeating-linear-gradient(90deg,#fff 0 9px,transparent 9px 22px);opacity:.85;border-radius:2px}
+.memo h3{margin:0 0 8px;font-family:"Segoe Print","Bradley Hand","Comic Sans MS",cursive;color:var(--blue-dark);font-size:1.35rem}
+.memo ul{list-style:none;margin:0;padding:0}
+.memo li{position:relative;padding-left:28px;margin:7px 0;font-size:1rem}
+.memo li::before{content:"✕";position:absolute;left:2px;top:0;color:#1f78b4;font-weight:900}
+.keys{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.keys b{font-size:.85rem;margin-right:4px}
+.chip{background:#fff;border-radius:999px;padding:2px 11px;font-size:.88rem;color:var(--red-dark);border:1.5px solid var(--red)}
+/* Tehtävät */
+.tasks{position:relative;background:var(--blue);border-radius:4px;padding:52px 20px 24px;margin:26px 0 8px;
+  -webkit-mask:none}
+.tasks::before{content:"";position:absolute;left:0;right:0;top:0;height:46px;background:var(--paper);
+  clip-path:polygon(0 0,100% 0,100% 100%,0 100%);opacity:0}
+.holes{position:absolute;left:14px;right:14px;top:14px;height:18px;
+  background:repeating-linear-gradient(90deg,#fff 0 18px,transparent 18px 38px)}
+.tasks h3{margin:0 0 4px;font-family:"Segoe Print","Bradley Hand","Comic Sans MS",cursive;color:var(--blue-dark);font-size:1.5rem}
+.note{font-size:.92rem;color:#17475f;margin:0 0 14px}
+.q{background:rgba(255,255,255,.88);border-radius:10px;padding:12px 14px;margin:12px 0;border:2px solid transparent}
+.q.ok{border-color:var(--ok);background:#effaf2}
+.q.bad{border-color:var(--bad);background:#fff1f2}
+.qn{display:inline-block;min-width:1.6em;color:var(--blue-dark);font-weight:700;font-size:1.15rem}
+.qt{font-weight:700}
+.kind{display:inline-block;margin-left:8px;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:#5a7a8c;border:1px solid #9bb7c6;border-radius:4px;padding:0 5px;vertical-align:2px}
+.opts{display:grid;gap:8px;margin-top:10px}
+.opts.tfg{grid-template-columns:1fr 1fr}
+.opt{font:inherit;text-align:left;background:#fff;border:2px solid #b9d3e0;border-radius:9px;padding:9px 12px;cursor:pointer;color:var(--ink);transition:background .1s,border-color .1s}
+.opt:hover:not(:disabled){border-color:var(--blue-dark);background:#f3fafe}
+.opt.sel{border-color:var(--blue-dark);background:#dff0f9;box-shadow:inset 0 0 0 1px var(--blue-dark)}
+.opt:disabled{cursor:default}
+.opt.right{border-color:var(--ok);background:#d9f3e0;font-weight:700}
+.opt.wrong{border-color:var(--bad);background:#fde0e3}
+.tfg .opt{text-align:center;font-weight:700}
+.fb{margin-top:8px;font-size:.93rem;display:none}
+.q.ok .fb,.q.bad .fb{display:block}
+.q.ok .fb{color:#1c6b36}.q.bad .fb{color:#9d1523}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.btn{font:inherit;font-weight:700;border:none;border-radius:10px;padding:11px 20px;cursor:pointer;color:#fff;background:var(--red);box-shadow:0 3px 0 var(--red-dark)}
+.btn:hover{filter:brightness(1.06)}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--red-dark)}
+.btn.alt{background:#fff;color:var(--blue-dark);box-shadow:0 3px 0 #9bb7c6;border:2px solid #9bb7c6;padding:9px 18px}
+.result{display:none;margin-top:18px;background:#fff;border-radius:12px;padding:14px 18px;border:3px solid var(--red);text-align:center}
+.result.show{display:block}
+.result .score{font-size:2.2rem;font-weight:700;color:var(--red)}
+.result .msg{font-size:1.05rem}
+footer{position:relative;z-index:1;text-align:center;font-size:.8rem;color:#777;padding:18px 24px 0}
+@media (max-width:560px){
+  h1{font-size:1.65rem}.pagehead h2{font-size:1.35rem}.opts.tfg{grid-template-columns:1fr}
+  .card .ico{display:none}.content{padding:8px 14px}header.top{padding:30px 14px 8px}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="wash"></div>
+  <header class="top">
+    <div class="eyebrow">Historia · 7. luokka · Harjoituskoe</div>
+    <h1>Koneiden aika alkaa</h1>
+    <p class="lead" id="lead">Valitse aihe. Jokaisen aiheen alussa on tärppiosio, jonka jälkeen vastaat kymmeneen kysymykseen. Vastaukset tarkistetaan vasta, kun painat tarkistusnappia.</p>
+  </header>
+  <main class="content" id="app"></main>
+  <footer>Kysymykset perustuvat oppikirjan kappaleisiin 5, 7, Zoom, 8 ja 9.</footer>
+</div>
+
+<script>
+/* ===================== DATA ===================== */
+const mc=(q,c,w)=>({t:'mc',q,o:[c,...w]});
+const tf=(q,a,e)=>({t:'tf',q,a,e});
+
+const TOPICS=[
+{
+ id:'hoyry', num:'5', title:'Höyrykone mullistaa maailman',
+ blurb:'Kehruu-Jenny, James Watt, höyrykone, rautatiet ja teollinen vallankumous',
+ icon:'factory',
+ tarpit:[
+  'Teollistuminen alkoi 1700-luvun lopulla Englannista, josta löytyivät rahaa, raaka-aineet, työvoima ja uudet keksinnöt.',
+  'Kehruu-Jenny (1765) oli ensimmäinen uudenaikainen kone. Koneet kasvattivat työntekijän tuottavuutta.',
+  'Höyrykone ratkaisi voimanlähteen ongelman, koska tehtaita ei tarvinnut enää rakentaa kosken äärelle. Ratkaisevan askeleen otti James Watt 1780-luvulla.',
+  'Höyrykone kiskoille tarkoitti rautateitä (ensimmäinen säännöllinen linja 1825), ja potkuri toi höyrylaivat valtamerille 1870-luvulla.',
+  'Teollinen vallankumous on nimitys teollistumisen aiheuttamalle suurelle muutokselle elämäntapaan ja tuotannon määrään.'
+ ],
+ keys:['teollistuminen','tuottavuus','Kehruu-Jenny','James Watt','teollinen vallankumous'],
+ qs:[
+  mc('Missä maassa teollistuminen alkoi?','Englannissa',['Ranskassa','Saksassa','Suomessa']),
+  mc('Mitä teollistumiseen tarvittiin?','Rahaa, raaka-aineita, työvoimaa ja uusia keksintöjä',['Pelkästään uusia siirtomaita ja suuria armeijoita','Ainoastaan hevosia ja käsityöläisiä','Vain hiiltä ja vettä']),
+  mc('Mitä energianlähteeksi tarvittua raaka-ainetta löytyi runsaasti Pohjois-Englannista?','Hiiltä',['Öljyä','Maakaasua','Uraania']),
+  mc('Mistä englantilaiset saivat halpoja raaka-aineita, kuten puuvillaa?','Siirtomaista',['Pohjois-Englannin hiilikaivoksista','Rautateiltä','Höyrykoneista']),
+  mc('Minä vuonna Kehruu-Jenny esiteltiin?','1765',['1769','1825','1848']),
+  mc('Mikä oli Kehruu-Jenny?','Kehruukone, jolla yksi työntekijä kehräsi lankaa kahdeksan käsityöläisen edestä',['Höyryllä kulkeva veturi','Kutomakone, joka kutoi langat kankaiksi','Pumppu, jolla vesi pumpattiin pois kaivoksista']),
+  mc('Mihin tarpeeseen Kehruu-Jennyn käyttö johti?','Tarpeeseen kehittää kutomakoneita, joilla langat kudottiin kankaiksi',['Tarpeeseen rakentaa rautateitä','Tarpeeseen kehittää automobiili','Tarpeeseen kieltää lapsityö']),
+  mc('Mitä tarkoittaa, että työntekijän tuottavuus kasvoi?','Työntekijä pystyi valmistamaan työvuoronsa aikana enemmän tavaraa',['Työntekijän palkka kaksinkertaistui','Työntekijä sai enemmän vapaa-aikaa','Tehtaita tarvittiin aiempaa vähemmän']),
+  mc('Mikä oli vesivoiman ongelma?','Tehtaat voitiin rakentaa vain kosken äärelle',['Vesivoima oli liian heikko pyörittämään yhtään konetta','Vesivoimaa ei ollut Englannissa lainkaan','Vesivoima vaati liikaa hiiltä']),
+  mc('Kuka skotlantilainen teollisuusmies otti 1780-luvulla ratkaisevan askeleen höyrykoneen kehityksessä?','James Watt',['Karl Benz','Henry Ford','Nikolaus Otto']),
+  mc('Mihin höyrykoneita käytettiin ensimmäisenä Pohjois-Englannin hiilikaivosalueilla?','Veden pumppaamiseen pois kaivoskuiluista',['Kutomakoneiden pyörittämiseen','Junien vetämiseen','Laivojen käyttövoimaksi']),
+  mc('Minkä James Wattin keksinnön avulla höyrykone voitiin kytkeä pyörittämään kutomakoneita?','Kiertokangen',['Potkurin','Liukuhihnan','Siipirattaan']),
+  mc('Miksi väestön muutto maaseudulta kaupunkeihin kiihtyi?','Tehtaiden säännölliset palkat tuntuivat houkuttelevilta',['Maaseudulla ei ollut lainkaan ruokaa','Valtio pakotti kaikki muuttamaan kaupunkeihin','Kaupungeissa asunnot olivat ilmaisia']),
+  mc('Miten tehtaiden kuljetusongelma ratkaistiin?','Sijoittamalla höyrykone kiskoille eli rakentamalla rautateitä',['Rakentamalla kaikki tehtaat kosken äärelle','Palaamalla hevosvaunuihin','Kuljettamalla tavarat käsivoimin']),
+  mc('Minä vuonna Englannissa avattiin ensimmäinen säännöllinen rautatielinja?','1825',['1765','1839','1870']),
+  mc('Mikä mahdollisti valtameriliikenteen höyrylaivoilla 1870-luvulla?','Potkurin yleistyminen',['Siipirattaiden keksiminen','Kiertokangen keksiminen','Rautateiden rakentaminen']),
+  mc('Miksi purjelaivoja käytettiin vuosisadan lopussa enää Intian, Kiinan ja Australian kaukopurjehduksissa?','Pitkillä avomeripurjehduksilla ei saatu hiilitäydennyksiä',['Purjelaivat olivat höyrylaivoja nopeampia','Höyrylaivat eivät kestäneet tuulta','Laki kielsi höyrylaivat näillä reiteillä']),
+  mc('Miksi puhutaan teollisesta vallankumouksesta?','Teollistumisen aiheuttama muutos elämäntapaan ja tuotannon määrään oli niin suuri',['Teollistuminen tapahtui yhdessä yössä','Kuningas kaadettiin väkivaltaisella kapinalla','Kaikki käsityöläiset muuttivat maaseudulle']),
+  mc('Miksi rahaa omistavat perustivat kilvan tehtaita?','Saadakseen lisää tuottoa',['Koska laki velvoitti heidät siihen','Koska halusivat vähentää työpaikkoja','Koska käsityöläiset pyysivät sitä']),
+  tf('Käsityö korvautui vähitellen konetyöllä.',true),
+  tf('Ensimmäiset höyrykoneet otettiin käyttöön tekstiilitehtaissa.',false,'Ensimmäisillä höyrykoneilla pumpattiin vettä pois hiilikaivosten kaivoskuiluista.'),
+  tf('Höyrykone oli luonnonolosuhteista riippumaton voimanlähde.',true),
+  tf('Höyrykone väsyi, kun se oli toiminut tarpeeksi kauan.',false,'Höyrykone ei väsynyt niin kauan kuin hiiltä riitti.'),
+  tf('Pohjois-Englannin kaivosalueilla hiilen kuljetukseen tarkoitetut radat olivat pisimmillään toistakymmentä kilometriä.',true),
+  tf('Jotkut pelkäsivät, että junien suunnaton nopeus olisi terveydelle vaaraksi.',true),
+  tf('Rautatiekuljetukset olivat kalliimpia kuin hevoskuljetukset.',false,'Veturin nielemän hiilen hinta oli vähäinen verrattuna hevosten hoitokustannuksiin.'),
+  tf('Länsi-Euroopan rautatieverkosto laajeni nopeasti 1800-luvun loppupuolella.',true),
+  tf('Englannissa rautatieverkon kasvu alkoi hidastua vuosisadan lopussa, koska tärkeimmät yhteydet oli jo rakennettu.',true),
+  tf('Höyrylaivat syrjäyttivät purjelaivat lähes kokonaan.',true),
+  tf('Teollistuminen alkoi Ranskasta.',false,'Teollistuminen alkoi Englannista.'),
+  tf('Nopea väestönkasvu takasi, ettei työvoimasta ollut pulaa.',true),
+  tf('Koneellistuminen ja tekniset keksinnöt levisivät vain kutomateollisuuteen.',false,'Ne levisivät nopeasti kutomateollisuudesta myös muille teollisuuden aloille.'),
+  tf('Höyrykoneen kehittymisen myötä tehtaiden rakentaminen hidastui.',false,'Tehtaiden rakentaminen kiihtyi.'),
+  tf('Siipirataslaivat sopivat vain joki- ja kanavaliikenteeseen.',true)
+ ]
+},
+{
+ id:'kaupunki', num:'7', title:'Elämää 1800-luvun teollisuuskaupungissa',
+ blurb:'Kaupunkien kasvu, asuminen, taudit, rikollisuus ja parannukset',
+ icon:'city',
+ tarpit:[
+  'Teollistuminen ei vähentänyt työpaikkoja vaan loi niitä lisää. Tehtaiden palkat houkuttelivat kaupunkeihin: Lontoon väkiluku nousi 1800-luvulla miljoonasta yli kuuteen miljoonaan.',
+  'Kaupungit kasvoivat tehtaiden ympärille nopeasti ja ilman suunnitelmaa. Asunnot olivat ahtaita ja huonolaatuisia, ja vuokrat korkeita.',
+  'Ongelmia olivat saastunut vesi (kolera), noki ja ahtaus (tuberkuloosi) sekä rikollisuus.',
+  'Ratkaisuja olivat vesijohto- ja viemäriverkosto (Lontoossa 1850-luvulla), poliisilaitokset, palontorjunta, leveät puistokadut, roskien keräys ja katuvalot.',
+  'Vuonna 1863 Lontoosta tuli ensimmäinen metrokaupunki. Raideliikenteen ansiosta työläisten ei tarvinnut asua tehtaiden vieressä.'
+ ],
+ keys:['kolera','tuberkuloosi','slummi','suuri löyhkä','metro'],
+ qs:[
+  mc('Mitä käsityöläiset pelkäsivät teollistumisen alkuvaiheessa?','Koneiden vievän heidän työpaikkansa',['Että kaikki tehtaat suljetaan','Että palkat nousevat liian korkeiksi','Että höyrykoneet loppuvat']),
+  mc('Mitä teollistuminen teki työpaikkojen määrälle?','Se loi niitä lisää',['Se vähensi niitä jyrkästi','Se ei vaikuttanut niihin lainkaan','Se poisti kaikki tehdastyöt']),
+  mc('Mikä teki kaupunkiin muuttamisesta houkuttelevan vaihtoehdon?','Tehtaissa maksettiin parempaa palkkaa kuin maatyöläisille, eikä maaseudulla riittänyt kaikille töitä',['Kaupunkien ilma oli puhdasta','Kaupungeissa asunnot olivat edullisia ja hyvälaatuisia','Tehtaat vaativat korkeaa ammattitaitoa ja siksi työ oli arvostettua']),
+  mc('Kuinka paljon Lontoon väkiluku nousi 1800-luvun kuluessa?','Miljoonasta yli kuuteen miljoonaan',['Sadasta tuhannesta miljoonaan','Kahdesta miljoonasta kymmeneen miljoonaan','Miljoonasta kolmeen miljoonaan']),
+  mc('Minne kaupungit usein kasvoivat?','Tehtaiden ympärille',['Rautateiden ja satamien väliin','Maatilojen keskelle','Kosken rantaan vain vesivoiman vuoksi']),
+  mc('Miksi asuntojen rakentamisen laatuun ei kiinnitetty huomiota?','Omistajat pyrkivät rakentamaan mahdollisimman halvalla ja keräämään korkeita vuokria',['Laki kielsi laadukkaan rakentamisen','Rakennusmateriaaleja ei ollut saatavilla','Työläiset halusivat asua huonoissa asunnoissa']),
+  mc('Mistä vesi haettiin aluksi työläisten asuinalueilla?','Pihapiirin yhteisestä kaivosta',['Vesijohdosta','Jokeen rakennetuista vesipumpuista','Jokaisen asunnon omasta hanasta']),
+  mc('Miten kaivovesi saastui?','Likavedet kaadettiin maahan tai rottia kuhiseviin ojiin, ja ne imeytyivät kaivoihin',['Tehtaat laskivat jätteet suoraan kaivoihin','Savu ja noki putosivat kaivoihin','Kaivot kaivettiin liian lähelle jokea']),
+  mc('Mikä oli kolera?','Vakava vatsatauti, jonka aiheuttamaan nestehukkaan useimmiten kuoli',['Hengitysilman kautta tarttuva keuhkotauti','Nokipilvien aiheuttama hengitysvaiva','Rottien levittämä ihotauti']),
+  mc('Mikä hengitysilman kautta tarttuva keuhkotauti levisi helposti huonosti tuuletetuissa asunnoissa?','Tuberkuloosi',['Kolera','Nestehukka','Hengenahdistus']),
+  mc('Kuinka suuri osa Euroopan väestöstä menehtyi koleraepidemioiden aikana?','Noin viisi prosenttia',['Noin yksi prosentti','Noin neljäsosa','Noin puolet']),
+  mc('Mitä kivihiilen poltto aiheutti kaupunkien ilmaan?','Paksuja nokipilviä',['Puhdasta höyryä','Raikasta ilmaa','Kosteaa sumua']),
+  mc('Miten saasteongelmaa yritettiin ratkaista?','Korottamalla savupiippuja, mikä vain levitti päästöt laajemmalle alueelle',['Sulkemalla kaikki tehtaat','Siirtämällä tehtaat maaseudulle','Kieltämällä kivihiilen käytön']),
+  mc('Mikä oli viranomaisten yhtenä huolenaiheena?','Toistuvat tautiepidemiat, jotka tappoivat paljon työikäistä väestöä',['Liian pienet tehtaat','Liian vähäinen väestönkasvu','Työläisten liian korkeat palkat']),
+  mc('Mikä oli merkittävä edistysaskel taistelussa koleraa vastaan?','Ymmärrettiin koleran johtuvan likaisesta vedestä',['Kaikki asukkaat muuttivat maaseudulle','Savupiippuja korotettiin','Kolera todettiin ilmassa leviäväksi taudiksi']),
+  mc('Millä nimellä Lontoon Thames-joen hajuhaitta tunnettiin?','Suuri löyhkä (The Great Stink)',['Suuri sumu','Mustan joen aika','Viemärin vuosi']),
+  mc('Mitä Lontoossa alettiin rakentaa 1850-luvulla?','Uutta vesijohto- ja viemäriverkostoa',['Ensimmäistä metroa','Ensimmäistä rautatietä','Ensimmäistä höyrylaivaa']),
+  mc('Miten tulipalojen aiheuttamia tuhoja hillittiin tehokkaasti?','Erottamalla kaupunginosia toisistaan leveillä puistokaduilla',['Rakentamalla kaikki talot puusta','Kieltämällä kaasulamput','Lisäämällä tehtaiden savupiippuja']),
+  mc('Mihin Englannissa kaupungit saivat oikeuden käyttää verorahoja vuonna 1848?','Roskien keräämiseen pois kaduilta',['Metron rakentamiseen','Uusien tehtaiden perustamiseen','Rautateiden rakentamiseen']),
+  mc('Minä vuonna Lontoosta tuli ensimmäinen kaupunki, jossa oli metro?','1863',['1825','1848','1850']),
+  mc('Miten raideliikenteen kehittyminen auttoi työläisiä?','Työläisten ei enää tarvinnut asua tehtaiden vieressä',['Asunnot tulivat ilmaisiksi','Työpäivät lyhenivät puoleen','Kaikki työläiset saivat oman talon']),
+  tf('Teollistuminen vähensi työpaikkojen määrää.',false,'Teollistuminen loi työpaikkoja lisää.'),
+  tf('Työväestön asuinalueet rakennettiin nopeasti ja ilman suunnitelmaa.',true),
+  tf('Työläisten asuinalueilla oli aluksi hyvät vesijohdot ja viemärit.',false,'Aluksi alueilla ei ollut vesijohtoja, viemäröintiä eikä kunnon pesutiloja.'),
+  tf('Kokonaiset perheet asuivat usein yhden huoneen asunnoissa.',true),
+  tf('Viiltäjä-Jackin henkilöllisyys on ollut alusta asti tiedossa.',false,'Sarjamurhaajan henkilöllisyys on pitkään pysynyt arvoituksena.'),
+  tf('Kaupunkien laitamat olivat turvallisia paikkoja myös ilta-aikaan.',false,'Laitamat eivät olleet turvallisia paikkoja etenkään ilta-aikaan.'),
+  tf('Rikollisuutta pyrittiin estämään perustamalla poliisilaitoksia ja lisäämällä poliisien määrää.',true),
+  tf('Kolera saatiin lopullisesti kuriin vasta rokotteen kehittämisen jälkeen.',true),
+  tf('Thames-joki puhdistui heti, kun Lontoon uusi viemäriverkosto oli rakennettu.',false,'Thames puhdistui vähitellen, ja kesti aikansa ennen kuin suuresta löyhkästä päästiin lopullisesti eroon.'),
+  tf('Asuntopulan vuoksi vuokralaisilla oli harvoin varaa valita asumustaan.',true),
+  tf('Kaupunkien keskustat siistiytyivät huomattavasti 1900-luvun alkuvuosiin mennessä.',true),
+  tf('Viemärien vesi oli Lontoossa laskettu suoraan Thames-jokeen.',true),
+  tf('Tehtaissa oli lukuisia töitä, jotka eivät vaatineet korkeaa ammattitaitoa.',true),
+  tf('Katujen turvallisuutta parannettiin ensin sähkövaloilla ja myöhemmin kaasuvaloilla.',false,'Turvallisuutta parannettiin ensin kaasu- ja lopulta sähkövalojen avulla.')
+ ]
+},
+{
+ id:'auto', num:'Z', title:'Zoom: Maailma tarttuu rattiin',
+ blurb:'Höyryautot, Benz, ottomoottori ja Henry Fordin T-malli',
+ icon:'car',
+ tarpit:[
+  'Höyrykoneen ansiosta syntyi haave itsestään kulkevasta ajoneuvosta eli automobiilista. Ensimmäinen höyryvetoinen ajoneuvo oli ranskalainen tykinvetäjä vuodelta 1769.',
+  'Lontoossa nähtiin 1830-luvulla höyrybusseja, mutta raskaat käyttömaksut ja 6 km/h nopeusrajoitus tekivät niistä kannattamattomia.',
+  'Nikolaus Otto esitteli nelitahtimoottorin 1876. Karl Benz patentoi ensimmäisen polttomoottorikäyttöisen ajoneuvon 1885, ja sitä pidetään auton syntymävuotena.',
+  'Bertha Benzin 80 kilometrin ajomatka todisti auton toimivuuden ja kasvatti automobiilin mainetta.',
+  'Henry Fordin T-malli (1908) oli halpa liukuhihnojen ja samanlaisten autojen ansiosta. Polttomoottori voitti kilpailun, ja sähköauto tekee paluuta vasta nykyään.'
+ ],
+ keys:['automobiili','ottomoottori','Karl Benz','T-Ford','liukuhihna','sarjatuotanto'],
+ qs:[
+  mc('Mikä oli ensimmäinen höyryvetoinen ajoneuvo?','Tykinvetäjä',['Höyrybussi','Höyryveturi','Siipirataslaiva']),
+  mc('Missä ja milloin ensimmäinen höyryvetoinen ajoneuvo valmistui?','Ranskassa vuonna 1769',['Englannissa vuonna 1769','Ranskassa vuonna 1885','Saksassa vuonna 1876']),
+  mc('Mikä oli tykinvetäjän huippunopeus?','Kolme kilometriä tunnissa',['Kuusi kilometriä tunnissa','Kaksikymmentä kilometriä tunnissa','Neljäkymmentä kilometriä tunnissa']),
+  mc('Mitä tykinvetäjällä onnistuttiin ajamaan?','Maailman ensimmäinen kolari',['Maailman ensimmäinen kilpa-ajo','Maailman ensimmäinen linja-automatka','Maailman ensimmäinen tavarakuljetus']),
+  mc('Montako matkustajaa 1830-luvun Lontoon höyrykäyttöiset linja-autot kykenivät kuljettamaan?','Yli 20',['Neljä','Kymmenen','Yli sata']),
+  mc('Montako miestä höyrybussin kuljettamiseen tarvittiin?','Kolme',['Yksi','Kaksi','Viisi']),
+  mc('Miksi höyrybussien liikennöinnistä tuli kannattamatonta?','Niiden väitettiin rikkovan teitä ja niille määrättiin raskaat käyttömaksut',['Niille ei löytynyt lainkaan matkustajia','Hiilestä oli pulaa','Ne olivat liian nopeita']),
+  mc('Mikä oli höyrykäyttöisten ajoneuvojen maksiminopeus Englannissa määräysten mukaan?','Kuusi kilometriä tunnissa',['Kolme kilometriä tunnissa','Kaksikymmentä kilometriä tunnissa','Neljäkymmentä kilometriä tunnissa']),
+  mc('Mitä höyrykäyttöisen ajoneuvon edellä piti Englannissa kävellä?','Henkilö, joka liehutti punaista varoituslippua',['Hevonen','Poliisi pillin kanssa','Henkilö, joka soitti kelloa']),
+  mc('Kuka esitteli nelitahtimoottorin vuonna 1876?','Nikolaus Otto',['Karl Benz','James Watt','Henry Ford']),
+  mc('Mikä toimi ottomoottoreista kehitettyjen automoottoreiden polttoaineena?','Maaöljystä jalostettu bensiini',['Kivihiili','Vesi','Sähkö']),
+  mc('Kuka ehti patentoida ensimmäisenä polttomoottorikäyttöisen ajoneuvon?','Karl Benz vuonna 1885',['Nikolaus Otto vuonna 1876','Henry Ford vuonna 1908','James Watt vuonna 1780']),
+  mc('Mitä Bertha Benz teki?','Lähti kahden poikansa kanssa ajamaan 80 kilometrin päässä asuvan äitinsä luo todistaakseen auton toimivuuden',['Myi ensimmäisen auton miljonäärille','Ajoi ensimmäisessä autokilpailussa','Kehitti ottomoottorin']),
+  mc('Mistä Bertha Benzin seurue osti bensiiniä matkalla?','Reitille osuneista apteekeista',['Huoltoasemilta','Tehtaasta','Tykinvetäjän varastosta']),
+  mc('Keiden kanssa Bertha Benz korjasi autoa matkan aikana?','Paikallisten seppien ja suutarien kanssa',['Poliisien kanssa','Lehtimiesten kanssa','Veturinkuljettajien kanssa']),
+  mc('Mitä autoja Yhdysvalloissa myytiin 1900-luvun alkuvuosina enemmän kuin polttomoottoriautoja?','Höyry- ja sähköautoja',['Vain höyrybusseja','Vain kaasuautoja','Vain hevosvetoisia vaunuja']),
+  mc('Miksi höyryauton liikkeellelähtö oli hidasta?','Höyryn aikaansaaminen kesti kymmeniä minuutteja',['Auto oli liian raskas','Auto kulki vain alamäkeen','Tiet olivat liian huonot']),
+  mc('Miksi sähköautoilijan ajomatkat jäivät lyhyiksi 1900-luvun alussa?','Akut olivat vielä varsin heikkoja',['Sähköautot olivat liian nopeita','Sähköautoja ei saanut ajaa kaupungissa','Sähköautot olivat äänekkäitä']),
+  mc('Minä vuonna Henry Ford toi myyntiin T-mallisen autonsa?','1908',['1769','1876','1885']),
+  mc('Miten T-Fordin valmistuskuluja pienennettiin?','Käyttämällä liukuhihnoja ja tekemällä kaikista autoista täsmälleen samanlaisia',['Valmistamalla jokainen auto asiakkaan toiveiden mukaan','Rakentamalla autot käsin pienissä työpajoissa','Käyttämällä vain höyrykoneita']),
+  mc('Minkä värisen auton jokainen asiakas sai Fordin kerrotun sanoneen mukaan?','Minkä värisen tahansa, kunhan se on musta',['Punaisen','Sinisen','Vihreän']),
+  tf('Autojen hinnat laskivat, kun niitä ryhdyttiin valmistamaan sarjatuotantona.',true),
+  tf('Auto käynnistettiin alkuaikoina avaimella.',false,'Auto käynnistettiin veivaamalla se käyntiin.'),
+  tf('Sähköautolla matkaan päästiin nopeasti ja kätevästi katkaisinta kääntämällä.',true),
+  tf('Lontoossa nähtiin 1830-luvulla höyrykäyttöisiä linja-autoja.',true),
+  tf('Karl Benzin vaimon nimi oli Bertha.',true),
+  tf('Karl Benz oli ranskalainen.',false,'Karl Benz oli saksalainen.'),
+  tf('Nikolaus Otto oli saksalainen.',true),
+  tf('T-Fordin pystyi ostamaan edullisen hintansa vuoksi tavallinen työmieskin.',true),
+  tf('T-Fordeja myytiin seuraavina vuosina vain muutama sata kappaletta.',false,'T-Fordeja myytiin seuraavina vuosina miljoonia kappaleita.'),
+  tf('Sähköauto tekee paluuta vasta nykyään.',true),
+  tf('Kilpa ratkesi polttomoottorin eduksi viimeistään vuonna 1908.',true),
+  tf('Karl Benz oli aivan varma siitä, että hänen tuotteensa menisi kaupaksi.',false,'Benz epäröi tuotteensa myyntikelpoisuutta, ja siksi hänen vaimonsa päätti todistaa auton toimivuuden.'),
+  tf('1900-luvun alussa höyryauton höyry tuotettiin polttamalla hiilen sijasta nestemäisiä polttoaineita.',true)
+ ]
+},
+{
+ id:'arki', num:'8', title:'Tehdastyöläisen arki ja vapaa-aika',
+ blurb:'Työaika, työturvallisuus, naiset, lapsityö ja vapaa-aika',
+ icon:'clock',
+ tarpit:[
+  'Maaseudulla työtä rytmittivät sää ja vuodenajat, mutta tehtaassa työtä ohjasivat kello ja tehtaan pilli. Viikossa oli kuusi työpäivää, ja työtunteja saattoi kertyä yli 80.',
+  'Teollistuminen toi rahan tavallisten ihmisten elämään: kaikki piti ostaa palkalla, ja suurin osa tuloista kului ruokaan. Tuotteiden hinnat laskivat ja laatu parani.',
+  'Tehdastyö oli raskasta ja vaarallista. Vasta 1800-luvun loppupuolella uudet lait velvoittivat työnantajat huolehtimaan työturvallisuudesta ja maksamaan korvauksia.',
+  'Naisille tehdastyö toi mahdollisuuden ansaita omaa rahaa, mutta palkka oli miehiä heikompi. Lapset olivat töissä, kunnes lapsityötä alettiin rajoittaa: Englannissa kiellettiin alle 9-vuotiaiden työ, ja 9–13-vuotiaiden työaika rajattiin 48 tuntiin viikossa.',
+  'Vapaa-aika oli uusi ilmiö. Tehtaat tukivat urheiluseuroja (esim. Manchester United ja Arsenal), mutta tehtaan kauppa saattoi ajaa työläiset velkaan.'
+ ],
+ keys:['työturvallisuus','lapsityövoima','vapaa-aika','tehtaan pilli'],
+ qs:[
+  mc('Mikä rytmitti työntekoa maaseudulla?','Sää ja vuodenajat',['Kello ja tehtaan pilli','Rautatien aikataulu','Kuninkaan määräykset']),
+  mc('Mikä ohjasi työtä kaupungin tehtaissa?','Kello ja tehtaan pilli',['Sää ja vuodenajat','Auringonnousu ja -lasku','Viljelykausi']),
+  mc('Montako täysimittaista työpäivää viikossa oli tehtaissa?','Kuusi',['Neljä','Viisi','Seitsemän']),
+  mc('Mikä päivä oli ainoa lepopäivä tehtaissa?','Sunnuntai',['Lauantai','Maanantai','Perjantai']),
+  mc('Kuinka monta työtuntia viikossa saattoi kertyä?','Yli 80',['Noin 40','Noin 60','Alle 30']),
+  mc('Mihin työläisten tuloista suurin osa kului?','Ruokaan',['Vaatteisiin','Vuokraan','Harrastuksiin']),
+  mc('Miksi kaikki tarvittavat tavarat ja palvelut oli ostettava palkalla?','Kaupungissa ei ollut tilaa viljellä maata eikä aikaa tehdä esineitä itse',['Laki kielsi tavaroiden tekemisen kotona','Kaikki tavarat olivat ilmaisia','Työläiset eivät osanneet tehdä mitään itse']),
+  mc('Mikä laski tuotteiden hintoja?','Suuret tuotantomäärät',['Lakot','Rautateiden rakentaminen','Lapsityön kieltäminen']),
+  mc('Mikä paransi tuotteiden laatua?','Tehtaiden välinen kilpailu ja valmistusmenetelmien kehitys',['Työaikojen pidentäminen','Vuokrien nousu','Savupiippujen korottaminen']),
+  mc('Miksi tehdastyö oli aluksi vaarallista?','Koneet oli suunniteltu tuottamaan mahdollisimman paljon, mutta työturvallisuudesta ei juurikaan välitetty',['Koneet olivat liian hitaita','Tehtaissa ei ollut koneita lainkaan','Työläiset eivät halunneet käyttää suojavarusteita']),
+  mc('Mikä sai tehtaiden omistajat parantamaan työturvallisuutta?','Uudet lait ja huomio siitä, että turvallisuuden parantaminen oli halvempaa kuin korvausten maksaminen',['Työläiset lahjoivat omistajat','Koneet lakkasivat toimimasta','Tehtaat siirrettiin valtion omistukseen']),
+  mc('Mitkä alat olivat naisvaltaisia?','Kangas- ja kutomateollisuus',['Kaivosala ja rakennusala','Rautatiet','Laivanrakennus']),
+  mc('Mitä tehdastyö toi naisille ensimmäistä kertaa?','Tilaisuuden ansaita omaa rahaa ja päättää sen käytöstä',['Oikeuden äänestää','Yhtä suuren palkan kuin miehille','Oikeuden johtaa tehdasta']),
+  mc('Miksi naisille maksettiin tehtaissa miehiä heikompaa palkkaa?','Koska naisia pidettiin miehiä vähempiarvoisina',['Koska naiset tekivät lyhyempiä päiviä','Koska naiset eivät osanneet käyttää koneita','Koska laki määräsi niin työnantajille']),
+  mc('Miksi vanhemmat laittoivat lapsensa töihin?','Perheet olivat todella köyhiä ja lapset ansaitsivat rahaa',['Lapset pyysivät itse pääsyä töihin','Koulut olivat täynnä','Laki velvoitti lapset töihin']),
+  mc('Miksi lapset sopivat aikuisia paremmin joihinkin töihin?','He pystyivät ahertamaan ahtaisiin kaivoskäytäviin',['He jaksoivat tehdä pidempiä päiviä kuin aikuiset','He olivat aikuisia vahvempia','He osasivat käyttää koneita aikuisia paremmin']),
+  mc('Miksi lapset olivat tehtaissa aikuisten valvonnan alla?','Muuten he olisivat olleet yksin koko päivän, sillä päiväkoteja ja kouluja ei vielä ollut',['Lapset oppivat tehtaissa lukemaan','Aikuiset halusivat opettaa lapsille ammatin','Laki vaati lapset tehtaaseen']),
+  mc('Mitä Englannissa kiellettiin lapsityövoiman käytön arvostelun seurauksena?','Alle yhdeksänvuotiaiden työssäkäynti',['Kaikkien alle 18-vuotiaiden työssäkäynti','Kaikkien lasten työ kaivoksissa ja tehtaissa','Naisten työ tehtaissa']),
+  mc('Mihin 9–13-vuotiaiden viikoittainen työaika Englannissa rajoitettiin?','48 tuntiin',['20 tuntiin','60 tuntiin','80 tuntiin']),
+  mc('Miksi tehtaiden omistajat tarjosivat työntekijöilleen mahdollisuuden terveellisempiin harrastuksiin?','He pelkäsivät työtehon heikkenevän, jos vapaa-aika käytettäisiin huonosti, esimerkiksi juopotteluun ja uhkapeleihin',['He halusivat korottaa työläisten palkkoja','Laki velvoitti heidät perustamaan urheiluseuroja','He halusivat työläisten muuttavan maaseudulle']),
+  mc('Mitkä perinteiset jalkapallojoukkueet syntyivät 1800-luvun lopulla?','Manchester United ja Arsenal',['Liverpool ja Chelsea','Real Madrid ja Barcelona','Bayern München ja Juventus']),
+  mc('Mitä tehdaspaikkakunnille rakennettiin sivistysharrastuksia varten?','Kirjastoja ja teattereita',['Kauppakeskuksia ja elokuvateattereita','Stadioneja ja uimahalleja','Puistoja ja museoita']),
+  mc('Miksi vapaa-aikaa vietettiin mielellään kodin ulkopuolella?','Koska asunnot olivat ahtaita',['Koska kodeissa ei ollut sähköä','Koska laki kielsi kotona oleskelun','Koska työläiset omistivat suuria taloja']),
+  mc('Miksi työläiset velkaantuivat usein tehtaan kauppaan?','Kauppa oli usein lähiseudun ainoa myymälä ja siellä sai ostaa myös velaksi',['Kaupassa tavarat olivat ilmaisia','Palkka maksettiin etukäteen kolmeksi vuodeksi','Työläisillä oli liikaa rahaa']),
+  tf('Tehtaan työpäivä alkoi ja loppui aina samaan aikaan riippumatta säästä tai päivänvalon määrästä.',true),
+  tf('1800-luvun tehtaissa työskenteleminen oli turvallista.',false,'Työ oli raskasta ja vaarallista, eikä työturvallisuudesta juurikaan välitetty.'),
+  tf('Uudet lait määräsivät työnantajat maksamaan korvauksia onnettomuuksien uhreille.',true),
+  tf('Naisille maksettiin tehtaissa miehiä enemmän palkkaa.',false,'Naisille maksettiin tehtaissa miehiä heikompaa palkkaa.'),
+  tf('Lapsityövoiman käyttö ei herättänyt 1800-luvulla lainkaan keskustelua.',false,'Käyttö herätti keskustelua, ja jo 1800-luvun alkupuolella osa ihmisistä piti sitä tuomittavana.'),
+  tf('Muu Eurooppa seurasi vähitellen Englannin esimerkkiä lapsityön rajoittamisessa.',true),
+  tf('Skotlantilainen hiilikaivoksen omistaja kertoi pitävänsä mielellään alaikäisiä lapsia töissä.',false,'Omistaja sanoi palkkaavansa mielellään muita, mutta silloin lasten vanhemmat menisivät töihin muualle.'),
+  tf('Vapaa-aika oli teollistumisen myötä syntynyt uusi ilmiö.',true),
+  tf('Joillakin tehtailla oli omat sairaalansa, kirkkonsa ja hautausmaansa.',true),
+  tf('Tehtaan ja työläisten välinen kiinteä suhde oli aina hyvä asia.',false,'Esimerkiksi tehtaan kauppa saattoi ajaa työläiset velkaan.'),
+  tf('Työläisten tuloista suurin osa kului vaatteisiin.',false,'Suurin osa tuloista kului ruokaan.'),
+  tf('Entisajan jalkapalloilijat saivat joukkueeltaan vain peliasut.',true),
+  tf('Lukutaito yleistyi 1800-luvulla.',true),
+  tf('Maaseudulla työt saattoi lopettaa aikaisemmin, jos pellolla työt olivat valmiit.',true),
+  tf('Tehtaissa työskenneltiin seitsemänä päivänä viikossa.',false,'Viikossa oli kuusi täysimittaista työpäivää, ja sunnuntai oli lepopäivä.')
+ ]
+},
+{
+ id:'yhteiskunta', num:'9', title:'Unelma oikeudenmukaisesta yhteiskunnasta',
+ blurb:'Ammattiyhdistykset, lakot, Karl Marx, sosialismi ja SDP',
+ icon:'flag',
+ tarpit:[
+  'Tehdastyöläisillä ei ollut äänioikeutta. Huonojen palkkojen ja raskaiden työolojen vuoksi he perustivat ammattiyhdistyksiä. Työnantajan saattoi saada suostumaan parannuksiin lopulta vain lakolla.',
+  'Valtio asettui useimmiten omistajien puolelle, ja lakkoilijoita kohdeltiin kovalla kädellä. Lakkojen murtaminen vaikeutui, kun ammattiyhdistyksistä muodostettiin valtakunnallisia ammattiliittoja.',
+  'Karl Marx ja Friedrich Engels julkaisivat 1848 Kommunistisen manifestin. Marx kirjoitti työväenluokan (proletariaatin) ja omistavan luokan (porvariston) välisestä luokkataistelusta.',
+  'Sosialismissa tehtaat ja maaomaisuus otettaisiin valtion haltuun ja valta olisi työläisillä. Sosialismia seuraisi lopulta kommunismi, jossa kaikki olisi yhteistä.',
+  '1800-luvun lopussa ammattiyhdistysten rinnalle perustettiin poliittisia puolueita. 1900-luvun alussa liike jakautui kommunisteihin (väkivaltainen vallankumous) ja sosiaalidemokraatteihin (laillinen tie). SDP perustettiin Forssassa 1903.'
+ ],
+ keys:['ammattiyhdistys','lakko','ammattiliitto','proletariaatti','porvaristo','sosialismi','kommunismi','sosiaalidemokraatit'],
+ qs:[
+  mc('Miksi tehdastyöläiset eivät voineet vaikuttaa kotikaupunkinsa tai valtion asioihin?','Heiltä puuttui äänioikeus',['Heillä ei ollut koulutusta','Laki kielsi heidän kokoontumisensa','He eivät olleet kiinnostuneita politiikasta']),
+  mc('Mitkä epäkohdat työläiset kokivat vielä suurempina kuin äänioikeuden puuttumisen?','Huonot palkat ja raskaat työolot',['Pitkät koulumatkat','Liian pitkät lomat','Liian suuret asunnot']),
+  mc('Mikä oli ammattiyhdistysten tavoite?','Parantaa oman alansa työntekijöiden asemaa',['Kaataa kuningas','Lopettaa kaikki tehtaat','Siirtää tehtaat maaseudulle']),
+  mc('Mikä jäi työläisten ainoaksi keinoksi, kun työnantajaa ei saatu suostumaan parannuksiin?','Lopettaa työnteko ja ryhtyä lakkoon',['Muuttaa maaseudulle','Anoa kuninkaalta rahaa','Perustaa oma tehdas']),
+  mc('Miksi tehtaanomistajan oli helppo lopettaa lakot?','Ammattiyhdistykset toimivat vain yhdessä tehtaassa tai yhdellä paikkakunnalla',['Ammattiyhdistykset olivat valtakunnallisia','Valtio tuki aina lakkoilijoita','Työläiset eivät halunneet lakkoilla']),
+  mc('Kenen puolelle valtio asettui useimmiten?','Omistajien',['Työläisten','Käsityöläisten','Maatilallisten']),
+  mc('Mitä 1830-luvulla Englannissa lakkoilleille maatyöläisille tapahtui?','Heidät tuomittiin karkotettaviksi seitsemäksi vuodeksi Australiaan',['Heidän palkkansa nousivat','Heistä tehtiin tehtaanomistajia','Heidät valittiin parlamenttiin']),
+  mc('Mikä oli lakkoilusta tavallisin seuraus?','Irtisanominen, johon ei vaadittu mitään perusteluja',['Palkankorotus','Pidempi loma','Ylennys']),
+  mc('Mikä vaikeutti lakkojen murtamista?','Ammattiyhdistysten muodostamat valtakunnalliset ammattiliitot',['Tehtaiden sulkeminen','Poliisien määrän vähentäminen','Rautateiden rakentaminen']),
+  mc('Mikä oli ammattiliitto?','Se kokosi ammattiyhdistykset ja samalla alalla työskennelleet työläiset valtakunnallisesti yhteen',['Se ajoi työntekijöiden etua yhdellä työpaikalla','Se oli tehtaanomistajien yhdistys','Se oli poliittinen puolue']),
+  mc('Mikä oli Karl Marxin ammatti?','Saksalainen lehtimies',['Tehtaanomistaja','Tehdastyöläinen','Poliisi']),
+  mc('Millaisesta taustasta Karl Marx oli?','Melko varakkaasta perheestä, eikä hän ollut koskaan työskennellyt tehtaassa',['Köyhästä työläisperheestä, ja hän oli työskennellyt tehtaassa','Kuninkaallisesta suvusta','Maatyöläisperheestä']),
+  mc('Minä vuonna Kommunistinen manifesti julkaistiin?','1848',['1763','1830','1903']),
+  mc('Kuka kirjoitti Kommunistisen manifestin Marxin kanssa?','Friedrich Engels',['Henry Ford','James Watt','Nikolaus Otto']),
+  mc('Mikä oli Kommunistisen manifestin mukaan suuri vääryys?','Työläiset tekivät työt, mutta vain omistajat rikastuivat',['Työläiset saivat liian suuria palkkoja','Omistajat tekivät liian pitkiä työpäiviä','Tehtaita oli liian vähän']),
+  mc('Keitä proletariaatilla tarkoitetaan?','Työväenluokkaa',['Omistavaa luokkaa','Kuninkaallisia','Tehtaanomistajia']),
+  mc('Keitä porvaristolla tarkoitetaan?','Omistavaa luokkaa',['Työväenluokkaa','Maaorjia','Poliiseja']),
+  mc('Miksi Marxin mielestä työntekijät ja tehtaanomistajat eivät voineet tehdä yhteistyötä?','Heidän etunsa olivat niin vastakkaiset',['He eivät puhuneet samaa kieltä','Omistajat asuivat liian kaukana','Laki kielsi yhteistyön']),
+  mc('Mitä Marxin mukaan tapahtuisi ennemmin tai myöhemmin?','Työväenluokka tekisi kaikkialla maailmassa vallankumouksen, jonka jälkeen yhteiskunta olisi sosialistinen',['Työläiset tyytyisivät asemaansa','Omistajat antaisivat tehtaat työläisille vapaaehtoisesti','Tehtaat suljettaisiin']),
+  mc('Mitä sosialismissa tehtäisiin tehtaille ja maaomaisuudelle?','Ne otettaisiin valtion haltuun ja valta olisi työläisillä',['Ne jaettaisiin tehtaanomistajille','Ne myytäisiin ulkomaille','Ne jäisivät yksityiseen omistukseen']),
+  mc('Mikä seuraisi Marxin mukaan sosialismia lopulta?','Kommunismi, jossa kaikki olisi yhteistä',['Kuningaskunta','Takaisin käsityöläisyhteiskuntaan','Orjayhteiskunta']),
+  mc('Mikä oli työväenliikkeen tunnusväri?','Punainen',['Sininen','Vihreä','Keltainen']),
+  mc('Mikä päivä on työväestön juhla- ja mielenosoituspäivä eri puolilla maailmaa?','Toukokuun 1. päivä eli vappu',['Joulukuun 6. päivä','Lokakuun 1. päivä','Kesäkuun 1. päivä']),
+  mc('Mitä sosiaalidemokraatit halusivat?','Sosialismin laillisin menetelmin: ensin äänioikeus kaikille ja sitten enemmistön kannatus vaaleissa',['Sosialismin välittömästi väkivaltaisella vallankumouksella','Palauttaa kuninkaan vallan','Lakkauttaa kaikki ammattiliitot']),
+  mc('Mitä kommunistit halusivat?','Sosialismin välittömästi väkivaltaisen vallankumouksen kautta',['Sosialismin vaalien kautta vähitellen','Tehtaiden palauttamisen omistajille','Äänioikeuden rajaamista']),
+  mc('Missä ja milloin Suomen Sosiaalidemokraattinen Puolue perustettiin?','Forssassa vuonna 1903',['Helsingissä vuonna 1848','Tampereella vuonna 1917','Turussa vuonna 1830']),
+  mc('Mitä SDP:n ensimmäiseen puolueohjelmaan kuului?','Vaatimukset minimipalkasta, kahdeksantuntisesta työpäivästä sekä yleisestä ja yhtäläisestä äänioikeudesta kaikille yli 21-vuotiaille',['Vaatimus kuninkaan vallan palauttamisesta','Vaatimus lapsityön lisäämisestä','Vaatimus 80-tuntisesta työviikosta']),
+  mc('Mikä oli poliittisen työväenliikkeen keino parantaa työläisten asemaa?','Lakien muuttaminen',['Tehtaiden polttaminen','Muuttaminen ulkomaille','Rautateiden rakentaminen']),
+  mc('Kenen etuja ammattiyhdistysliike ajoi aluksi?','Hyvin palkattujen ammattimiesten',['Kouluttamattomien työläisten','Lapsityöläisten','Tehtaanomistajien']),
+  mc('Mitä tapahtui, kun työväestön asema ei vuosikymmenten kuluessa olennaisesti parantunut?','Työläisten vaatimukset jyrkkenivät ja Marxin ajatukset saivat laajempaa kannatusta',['Marxin ajatukset unohdettiin','Ammattiyhdistykset lakkautettiin','Kaikki työläiset muuttivat maaseudulle']),
+  tf('Tehdastyöläisillä oli 1800-luvun alkuvuosikymmeninä äänioikeus.',false,'Heiltä puuttui äänioikeus.'),
+  tf('Karl Marx oli itse työskennellyt tehtaassa.',false,'Marx ei ollut koskaan työskennellyt tehtaassa, mutta hän tunsi sympatiaa kurjuudessa elävää työväestöä kohtaan.'),
+  tf('Karl Marx oli lähtöisin melko varakkaasta perheestä.',true),
+  tf('Marxin mielestä työntekijöiden ja tehtaanomistajien edut olivat vastakkaiset.',true),
+  tf('Marx uskoi, että työläiset tyytyisivät ikuisesti kurjaan asemaansa.',false,'Marx oli vakuuttunut, etteivät työläiset ikuisesti tyytyisi kurjaan asemaansa.'),
+  tf('Sosialismissa tehtaat jäisivät yksityisomistukseen.',false,'Sosialismissa tehtaat ja maaomaisuus otettaisiin valtion haltuun.'),
+  tf('Sosialismi perustuu yhteisomistukseen.',true),
+  tf('Kommunismissa jokainen tekisi työtä kykyjensä mukaan ja saisi elantoa tarpeensa mukaan.',true),
+  tf('Sosiaalidemokraatit halusivat sosialismin väkivaltaisella vallankumouksella.',false,'Sosiaalidemokraatit pyrkivät sosialismiin laillisin menetelmin. Väkivaltaista vallankumousta halusivat kommunistit.'),
+  tf('Kommunistisen manifestin laatimisen aikaan Marxin johtamassa Kommunistien liitossa oli vain parisataa jäsentä.',true),
+  tf('Marx joutui Kommunistisen manifestin julkaisemisen jälkeen pakenemaan Saksasta Lontooseen.',true),
+  tf('Marxin perhe eli jatkuvasti velkojen ahdistamana.',true),
+  tf('Lakkojen murtaminen muuttui vaikeammaksi, kun ammattiyhdistykset alkoivat muodostaa valtakunnallisia ammattiliittoja.',true),
+  tf('Suomen Sosiaalidemokraattinen Puolue perustettiin Helsingissä.',false,'Puolue perustettiin Forssassa vuonna 1903.'),
+  tf('Valtio asettui useimmiten työläisten puolelle lakkotilanteissa.',false,'Valtio asettui useimmiten omistajien puolelle.'),
+  tf('Poliittinen työväenliike jakautui 1900-luvun alussa kahteen osaan.',true),
+  tf('Poliisi nujersi työläisten mielenosoituksia usein väkivaltaisesti.',true),
+  tf('Marx kirjoitti työväenluokan ja omistavan luokan välisestä luokkataistelusta.',true)
+ ]
+}
+];
+/*END_DATA*/
+
+/* ===================== ICONS ===================== */
+const ICONS={
+factory:`<svg viewBox="0 0 120 80" width="96" height="64" aria-hidden="true"><circle cx="97" cy="12" r="7" fill="#c9c4bd"/><circle cx="106" cy="6" r="5" fill="#ddd8d1"/><rect x="88" y="22" width="12" height="52" fill="#a03c30"/><rect x="6" y="40" width="76" height="34" fill="#c4553f"/><polygon points="6,40 24,26 24,40 42,26 42,40 60,26 60,40 78,26 78,40" fill="#8e3329"/><rect x="14" y="50" width="9" height="9" fill="#fbe9b3"/><rect x="30" y="50" width="9" height="9" fill="#fbe9b3"/><rect x="46" y="50" width="9" height="9" fill="#fbe9b3"/><rect x="62" y="50" width="9" height="9" fill="#fbe9b3"/><rect x="2" y="74" width="116" height="4" fill="#3b7a3b"/></svg>`,
+city:`<svg viewBox="0 0 120 80" width="96" height="64" aria-hidden="true"><circle cx="30" cy="14" r="9" fill="#9b9690"/><circle cx="44" cy="8" r="7" fill="#b5b0a9"/><circle cx="82" cy="12" r="8" fill="#9b9690"/><rect x="8" y="30" width="22" height="44" fill="#4a423c"/><rect x="26" y="20" width="6" height="12" fill="#3a332e"/><rect x="34" y="42" width="26" height="32" fill="#5d534c"/><rect x="64" y="26" width="22" height="48" fill="#4a423c"/><rect x="78" y="14" width="6" height="14" fill="#3a332e"/><rect x="88" y="44" width="26" height="30" fill="#5d534c"/><rect x="14" y="40" width="5" height="5" fill="#f2c94c"/><rect x="40" y="50" width="5" height="5" fill="#f2c94c"/><rect x="70" y="40" width="5" height="5" fill="#f2c94c"/><rect x="96" y="54" width="5" height="5" fill="#f2c94c"/><rect x="2" y="74" width="116" height="4" fill="#2b2622"/></svg>`,
+car:`<svg viewBox="0 0 120 80" width="96" height="64" aria-hidden="true"><path d="M10 50 L22 50 L28 32 L60 32 L66 44 L96 44 Q108 44 108 54 L108 58 L10 58 Z" fill="#2b2b33"/><rect x="30" y="34" width="28" height="14" fill="#e8dcc2"/><line x1="46" y1="22" x2="46" y2="34" stroke="#2b2b33" stroke-width="3"/><line x1="38" y1="22" x2="54" y2="22" stroke="#2b2b33" stroke-width="3"/><circle cx="30" cy="60" r="12" fill="#2b2b33"/><circle cx="30" cy="60" r="6" fill="#d6c7a1"/><circle cx="88" cy="60" r="12" fill="#2b2b33"/><circle cx="88" cy="60" r="6" fill="#d6c7a1"/><rect x="2" y="74" width="116" height="4" fill="#caa86a"/></svg>`,
+clock:`<svg viewBox="0 0 120 80" width="96" height="64" aria-hidden="true"><circle cx="60" cy="40" r="32" fill="#fff" stroke="#a81d2c" stroke-width="5"/><g stroke="#1f1f26" stroke-width="2.5"><line x1="60" y1="14" x2="60" y2="20"/><line x1="60" y1="60" x2="60" y2="66"/><line x1="34" y1="40" x2="40" y2="40"/><line x1="80" y1="40" x2="86" y2="40"/></g><line x1="60" y1="40" x2="60" y2="22" stroke="#1f1f26" stroke-width="4" stroke-linecap="round"/><line x1="60" y1="40" x2="74" y2="46" stroke="#d62839" stroke-width="3.5" stroke-linecap="round"/><circle cx="60" cy="40" r="3.5" fill="#1f1f26"/></svg>`,
+flag:`<svg viewBox="0 0 120 80" width="96" height="64" aria-hidden="true"><rect x="28" y="6" width="4" height="70" fill="#5b4636"/><path d="M32 8 Q52 0 70 10 T108 12 L108 46 Q88 56 70 46 T32 48 Z" fill="#d62839"/><circle cx="60" cy="28" r="5" fill="#f6c8a0" opacity=".9"/></svg>`
+};
+function splat(label,size){
+  const pts=[],n=16;
+  for(let i=0;i<n*2;i++){const a=Math.PI*i/n;const r=(i%2?0.8:1)*(0.92+0.08*Math.sin(i*7.3));
+    pts.push((50+46*r*Math.cos(a)).toFixed(1)+','+(50+46*r*Math.sin(a)).toFixed(1));}
+  return `<svg class="splat" viewBox="0 0 100 100" width="${size}" height="${size}" aria-hidden="true"><polygon points="${pts.join(' ')}" fill="#d62839"/><text x="50" y="66" text-anchor="middle" font-size="48" font-weight="700" fill="#fff" font-family="Georgia,serif">${label}</text></svg>`;
+}
+function zoomBadge(size){
+  return `<svg class="splat" viewBox="0 0 100 100" width="${size}" height="${size}" aria-hidden="true"><circle cx="42" cy="42" r="28" fill="#fff" stroke="#d62839" stroke-width="9"/><line x1="63" y1="63" x2="90" y2="90" stroke="#d62839" stroke-width="11" stroke-linecap="round"/><text x="42" y="54" text-anchor="middle" font-size="30" font-weight="700" fill="#d62839" font-family="Georgia,serif" font-style="italic">Z</text></svg>`;
+}
+const badge=(t,size)=> t.num==='Z'?zoomBadge(size):splat(t.num,size);
+
+/* ===================== LOGIC ===================== */
+const app=document.getElementById('app');
+const lead=document.getElementById('lead');
+const QCOUNT=10;
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+/* Valitaan 10 kysymystä: 6 monivalintaa + 4 väittämää (jos pankissa riittää) */
+function drawQuestions(topic){
+  const mcs=shuffle(topic.qs.filter(q=>q.t==='mc'));
+  const tfs=shuffle(topic.qs.filter(q=>q.t==='tf'));
+  const nTf=Math.min(4,tfs.length), nMc=Math.min(QCOUNT-nTf,mcs.length);
+  const picked=shuffle(mcs.slice(0,nMc).concat(tfs.slice(0,nTf)));
+  return picked.map(q=>{
+    if(q.t==='mc'){
+      const opts=shuffle(q.o.map((text,i)=>({text,correct:i===0})));
+      return {t:'mc',q:q.q,opts};
+    }
+    return {t:'tf',q:q.q,a:q.a,e:q.e};
+  });
+}
+
+let cur=null, quiz=[], answers=[], checked=false;
+
+function home(){
+  cur=null;
+  lead.textContent='Valitse aihe. Jokaisen aiheen alussa on tärppiosio, jonka jälkeen vastaat kymmeneen kysymykseen. Vastaukset tarkistetaan vasta, kun painat tarkistusnappia.';
+  app.innerHTML=`<div class="cards">${TOPICS.map(t=>`
+    <button class="card" data-id="${t.id}">
+      ${badge(t,64)}
+      <div><div class="ct">${t.title}</div><div class="cs">${t.blurb}</div></div>
+      <div class="ico">${ICONS[t.icon]}</div>
+    </button>`).join('')}</div>`;
+  app.querySelectorAll('.card').forEach(b=>b.addEventListener('click',()=>openTopic(b.dataset.id)));
+  window.scrollTo({top:0});
+}
+
+function openTopic(id){
+  cur=TOPICS.find(t=>t.id===id);
+  quiz=drawQuestions(cur);
+  answers=new Array(quiz.length).fill(null);
+  checked=false;
+  lead.textContent='';
+  const t=cur;
+  app.innerHTML=`
+    <button class="back" id="back">← Kaikki aiheet</button>
+    <div class="pagehead">${badge(t,70)}<h2>${t.title}</h2></div>
+    <section class="memo">
+      <h3>Muistilista – tärpit</h3>
+      <ul>${t.tarpit.map(x=>`<li>${x}</li>`).join('')}</ul>
+      <div class="keys"><b>Avainsanat:</b>${t.keys.map(k=>`<span class="chip">${k}</span>`).join('')}</div>
+    </section>
+    <section class="tasks">
+      <div class="holes"></div>
+      <h3>Tehtävät</h3>
+      <p class="note">${quiz.length} kysymystä. Valitse jokaiseen yksi vastaus. Tarkistus tehdään alla olevasta napista.</p>
+      <div id="qs">${quiz.map((q,i)=>qHtml(q,i)).join('')}</div>
+      <div class="actions">
+        <button class="btn" id="check">Tarkista vastaukset</button>
+        <button class="btn alt" id="again">Uudet kysymykset</button>
+      </div>
+      <div class="result" id="result"></div>
+    </section>`;
+  document.getElementById('back').onclick=home;
+  document.getElementById('again').onclick=()=>{ if(!checked && answers.some(a=>a!==null) && !confirm('Aloitetaanko alusta? Antamasi vastaukset poistuvat.')) return; openTopic(cur.id); };
+  document.getElementById('check').onclick=checkAll;
+  document.getElementById('qs').addEventListener('click',e=>{
+    const b=e.target.closest('.opt'); if(!b||checked) return;
+    const i=+b.dataset.q, v=b.dataset.v;
+    answers[i]= quiz[i].t==='tf' ? (v==='1') : +v;
+    b.closest('.opts').querySelectorAll('.opt').forEach(x=>x.classList.toggle('sel',x===b));
+  });
+  window.scrollTo({top:0});
+}
+
+function qHtml(q,i){
+  const kind=q.t==='tf'?'Oikein vai väärin':'Monivalinta';
+  const body=q.t==='tf'
+    ? `<div class="opts tfg"><button class="opt" data-q="${i}" data-v="1">Oikein</button><button class="opt" data-q="${i}" data-v="0">Väärin</button></div>`
+    : `<div class="opts">${q.opts.map((o,j)=>`<button class="opt" data-q="${i}" data-v="${j}">${o.text}</button>`).join('')}</div>`;
+  return `<div class="q" id="q${i}"><div><span class="qn">${i+1}.</span><span class="qt">${q.q}</span><span class="kind">${kind}</span></div>${body}<div class="fb"></div></div>`;
+}
+
+function checkAll(){
+  if(checked) return;
+  const missing=answers.filter(a=>a===null).length;
+  if(missing>0 && !confirm(`Vastaamatta on ${missing} kysymystä. Tarkistetaanko silti? Vastaamattomat lasketaan vääriksi.`)) return;
+  checked=true;
+  let score=0;
+  quiz.forEach((q,i)=>{
+    const box=document.getElementById('q'+i), fb=box.querySelector('.fb');
+    const btns=box.querySelectorAll('.opt');
+    let ok=false, right='';
+    if(q.t==='tf'){
+      ok = answers[i]===q.a;
+      btns.forEach(b=>{const val=b.dataset.v==='1'; if(val===q.a) b.classList.add('right'); else if(answers[i]===val) b.classList.add('wrong');});
+      right = q.a ? 'Väite on oikein.' : 'Väite on väärin. '+(q.e||'');
+    }else{
+      const ci=q.opts.findIndex(o=>o.correct);
+      ok = answers[i]===ci;
+      btns.forEach((b,j)=>{ if(j===ci) b.classList.add('right'); else if(answers[i]===j) b.classList.add('wrong'); });
+      right = 'Oikea vastaus: '+q.opts[ci].text+'.';
+    }
+    btns.forEach(b=>{b.disabled=true;b.classList.remove('sel')});
+    if(ok) score++;
+    box.classList.add(ok?'ok':'bad');
+    fb.textContent=(ok?'✓ Oikein. ':(answers[i]===null?'✗ Ei vastausta. ':'✗ Väärin. '))+(ok&&q.t==='mc'?'':right);
+  });
+  const n=quiz.length;
+  const msg= score>=n-1?'Erinomaista! Osaat aiheen hyvin.' : score>=Math.ceil(n*0.7)?'Hyvin menee! Kertaa vielä virheiden aiheet.' : score>=Math.ceil(n*0.5)?'Kohtalaista. Lue tärpit uudelleen ja kokeile uusia kysymyksiä.' : 'Lue tärpit ja kirjan teksti vielä kerran, ja yritä sitten uudelleen.';
+  const r=document.getElementById('result');
+  r.innerHTML=`<div class="score">${score} / ${n}</div><div class="msg">${msg}</div>`;
+  r.classList.add('show');
+  document.getElementById('check').disabled=true;
+  document.getElementById('check').style.opacity='.5';
+  r.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+home();
+</script>
+</body>
+</html>
